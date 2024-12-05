@@ -65,3 +65,23 @@ from itertools import product
 a = [['1', '2', '1'], ['4', '5'], ['8', '9'], ['3', '0']]
 ans = [''.join(x) for x in list(product(*a))]
 print(*sorted(set(ans)), sep='\n')
+
+
+
+>>> Номер 4: итераторы
+  варик 1
+import json
+from sys import stdin
+def prime(x):
+    if x in [0, 1]:
+        return 0
+    for k in range(2, int(x ** 0.5) + 1):
+        if x % k == 0:
+            return 0
+    return 1
+lst = []
+for i in stdin:
+    lst.append(int(i.rstrip("\n")))
+data_dict = {str(i): sorted([j for j in lst if j % i == 0]) for i in lst if prime(i)}
+with open(r"C:\Users\eldor\Рабочий стол\1.json.json", "w", encoding="UTF-8") as file:
+    json.dump(data_dict, file, ensure_ascii=False)
