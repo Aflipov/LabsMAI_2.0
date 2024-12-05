@@ -41,6 +41,20 @@ while a != '':
 for i in sorted(d.keys()):
     print(f'{i} - {' '.join(d.pop(i))}')
 
+  варик 2
+d = {}
+
+def add(key, value):
+    d[key] = d.get(key, []) + [value]
+
+a = str(input())
+while a != '':
+    for x in a.split():
+        add(len(x), x)
+    a = str(input())
+
+for i in sorted(d.keys()):
+    print(f'{i}: {'; '.join(d.pop(i))}')
 
 
 
