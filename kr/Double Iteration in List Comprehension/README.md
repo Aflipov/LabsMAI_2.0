@@ -69,6 +69,7 @@ print(*sorted(set(ans)), sep='\n')
 
 
 >>> Номер 4: итераторы
+
   варик 1
 import json
 from sys import stdin
