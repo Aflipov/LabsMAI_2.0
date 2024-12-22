@@ -44,7 +44,7 @@ void getTaylorSeries(double x, double *series_sum, int *series_terms_amount) // 
     } while (fabs(current_element) > epsilon && interation + 1 < 100); // стремимся к 1 + epsilon = 1
 
     *series_sum = current_sum;             // возврвщвем сумму ряда
-    *series_terms_amount = interation + 1; // возврвщвем кол-во эл-ов ряда
+    *series_terms_amount = interation; // возврвщвем кол-во эл-ов ряда
 }
 
 int main(void) // мейн
