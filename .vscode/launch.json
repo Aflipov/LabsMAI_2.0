@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/Akella/Desktop/university/LabsMAI_2.0/kp3",
-      "program": "c:/Users/Akella/Desktop/university/LabsMAI_2.0/kp3/build/Debug/outDebug",
+      "cwd": "c:/Users/Akella/Desktop/university/LabsMAI_2.0/lab09",
+      "program": "c:/Users/Akella/Desktop/university/LabsMAI_2.0/lab09/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

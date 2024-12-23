@@ -1,6 +1,6 @@
 #include <stdio.h>
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b)) // определяем сравнение в паре элементов
+#define min(a, b) (((a) < (b)) ? (a) : (b)) // 
 
 double absl(double a) {
     if (a >= 0) return a;
