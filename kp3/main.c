@@ -28,14 +28,14 @@ double func(double x) // значение нашей функции(арктан
 
 void getNextSeriesElement(double x, int *iteration, double *element) // получаем iteration+1-ый член ряда для функции в точке x
 {
-    double current_iteration = *iteration;
-    if (current_iteration == 0) // первый элемент ряда = x
+    // double current_iteration = *iteration;
+    if (*iteration == 0) // первый элемент ряда = x
     {
         *element = x;
     }
     else // n-ый эл-т ряда = n-1-ый * (x^2(2n-1))/(2n+1)
     {
-        *element *= (-1.0) * x * x * (2.0 * (current_iteration)-1.0) / (2.0 * (current_iteration) + 1.0);
+        *element *= (-1.0) * x * x * (2.0 * (*iteration)-1.0) / (2.0 * (*iteration) + 1.0);
     }
     *iteration += 1; // счетчик итераций привязан к расчету эл-тов ряда
 }
