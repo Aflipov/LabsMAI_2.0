@@ -47,7 +47,8 @@ int getPriority(char *oper) {
 
 // Функция для преобразования выражения в постфиксную запись (алгоритм сортировочной станции)
 char** infixToPostfix(char *infix, int *postfixSize) {
-    // Выделяем память для массива строк, который будет содержать постфиксную запись
+    // ... (Код как в предыдущем примере, без изменений в этой части) ...
+     // Выделяем память для массива строк, который будет содержать постфиксную запись
     // Предполагаем не более MAX_TOKENS токенов
     char** postfix = (char**)malloc(MAX_TOKENS * sizeof(char*));
     if (postfix == NULL) {
@@ -79,6 +80,7 @@ char** infixToPostfix(char *infix, int *postfixSize) {
     int stackTop = -1; // Индекс вершины стека (пустой стек)
     int postfixIndex = 0; // Индекс для добавления токенов в постфиксную запись
     char *token = strtok(infix, " "); // Разделяем строку на токены по пробелам
+    // strtok - изменяет сроку, поэтому важно передавать копию строки
 
     bool expectOperand = true; // Ожидаем операнд (число, переменную или открывающую скобку)
 
@@ -87,7 +89,7 @@ char** infixToPostfix(char *infix, int *postfixSize) {
             // Если токен - число (или отрицательное)
             strcpy(postfix[postfixIndex++], token);
             expectOperand = false;
-        } else if (isalpha(token[0])) {
+        } else if (isalpha(token[0])) { // Добавлена проверка на переменную
             // Если токен - переменная (начинается с буквы)
             strcpy(postfix[postfixIndex++], token);
             expectOperand = false;
@@ -203,7 +205,7 @@ TreeNode *buildExpressionTree(char** postfix, int postfixSize) {
        return NULL;
     }
 
-    free(stack); // Освобождаем память стека
+    free(stack); //// Освобождаем память стека
     return root;
 }
 
@@ -240,9 +242,6 @@ static TreeNode* buildSubTree(char** tokens, int count) {
             mulNode->right = createNode(tokens[i]);
             subtree = mulNode;
         }
-    } else {
-        // Если все члены были сокращены, создаем узел со значением "1"
-        subtree = createNode("1");
     }
     return subtree;
 }
@@ -360,6 +359,62 @@ TreeNode* simplifyFraction(TreeNode* root) {
 
     return root;
 }
+
+// Функция для преобразования a / b + c / d -> (a * d + b * c)/(b * d)
+// TreeNode *transformTree(TreeNode *root) {
+//     if (root == NULL) {
+//         return NULL;
+//     }
+
+//     if (strcmp(root->data, "+") == 0 && root->left != NULL && strcmp(root->left->data, "/") == 0 && root->right != NULL && strcmp(root->right->data, "/") == 0) {
+//         TreeNode *a = root->left->left;
+//         TreeNode *b = root->left->right;
+//         TreeNode *c = root->right->left;
+//         TreeNode *d = root->right->right;
+
+//         // Создаем новые узлы для (a * d + b * c)/(b * d)
+//         TreeNode *mul1 = createNode("*");
+//         mul1->left = createNode(a->data);
+//         mul1->right = createNode(d->data);
+
+//         TreeNode *mul2 = createNode("*");
+//         mul2->left = createNode(b->data);
+//         mul2->right = createNode(c->data);
+
+//         TreeNode *add = createNode("+");
+//         add->left = mul1;
+//         add->right = mul2;
+
+//         TreeNode *mul3 = createNode("*");
+//         mul3->left = createNode(b->data);
+//         mul3->right = createNode(d->data);
+
+//         TreeNode *div = createNode("/");
+//         div->left = add;
+//         div->right = mul3;
+
+//         // Освобождаем память от старых узлов и их потомков
+//         free(root->left->left);
+//         free(root->left->right);
+//         free(root->left);
+//         free(root->right->left);
+//         free(root->right->right);
+//         free(root->right);
+//         free(root);
+
+//        return div; // Возвращаем корен преобразованного поддерева
+//     } else {
+//          TreeNode* newRoot = createNode(root->data);
+//         newRoot->left = transformTree(root->left);
+//         newRoot->right = transformTree(root->right);
+//         // Освобождаем память от старого root
+//         free(root->left);
+//         free(root->right);
+//         free(root);
+
+//         return newRoot;
+//     }
+// }
 
 // Функция для печати дерева в инфиксной записи
 void printInfix(TreeNode *root) {
