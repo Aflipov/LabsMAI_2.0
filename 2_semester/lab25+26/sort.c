@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stack.h"
-#include "sort.h" // Добавлен sort.h
+#include "sort.h"
 
 // Сортировка стека линейным выбором
 void stack_sort_selection(stack *s) {
@@ -11,12 +11,12 @@ void stack_sort_selection(stack *s) {
 
     while (!stack_is_empty(s)) {
         data_type max_val = stack_delete_max(s);
-        stack_push(&tempStack, max_val);
+        stack_push_front(&tempStack, max_val);
     }
 
     // Перемещаем элементы обратно в исходный стек
     while (!stack_is_empty(&tempStack)) {
-        data_type val = stack_pop(&tempStack);
-        stack_push(s, val);
+        data_type val = stack_pop_front(&tempStack);
+        stack_push_front(s, val);
     }
 }
