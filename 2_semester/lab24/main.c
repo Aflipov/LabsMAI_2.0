@@ -2,14 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdbool.h>
-
-#define MAX_TOKENS 100
-#define MAX_TOKEN_LENGTH 20
 
 // Структура для узла дерева
 typedef struct TreeNode {
-    char data[MAX_TOKEN_LENGTH]; // Для операторов (+, *, /) и операндов (число или переменная)
+    char data[20]; // Для операторов (+, *, /) и операндов (число или переменная)
     struct TreeNode *left; // Указатель на левого потомка узла
     struct TreeNode *right; // Указатель на правого потомка узла
 } TreeNode;
@@ -30,7 +26,9 @@ TreeNode *createNode(char *data) {
 // Функция для проверки, является ли строка оператором
 int isOperator(char *str) {
     return (strcmp(str, "+") == 0 || strcmp(str, "-") == 0 ||
-            strcmp(str, "*") == 0 || strcmp(str, "/") == 0 || strcmp(str, "u-") == 0);
+            strcmp(str, "*") == 0 || strcmp(str, "/") == 0);
+    //// strcmp - функция возвращает 1, если строка str и (+. -, *, /) равны
+    //// 0 - в противоположном случае
 }
 
 // Функция для получения приоритета оператора для правильной расстановки операторов в постфиксной записи
@@ -39,24 +37,21 @@ int getPriority(char *oper) {
         return 1;
     } else if (strcmp(oper, "*") == 0 || strcmp(oper, "/") == 0) {
         return 2;
-    } else if(strcmp(oper, "u-") == 0) { // Унарный минус
-        return 3; // Более высокий приоритет
     }
-    return 0; // Для операндов и переменных
+    return 0; // Для операндов
 }
 
 // Функция для преобразования выражения в постфиксную запись (алгоритм сортировочной станции)
 char** infixToPostfix(char *infix, int *postfixSize) {
-    // ... (Код как в предыдущем примере, без изменений в этой части) ...
-     // Выделяем память для массива строк, который будет содержать постфиксную запись
-    // Предполагаем не более MAX_TOKENS токенов
-    char** postfix = (char**)malloc(MAX_TOKENS * sizeof(char*));
+    // Выделяем память для массива строк, который будет содержать постфиксную запись
+    // Предполагаем не более 100 токенов
+    char** postfix = (char**)malloc(100 * sizeof(char*));
     if (postfix == NULL) {
         perror("Ошибка выделения памяти для postfix");
         exit(EXIT_FAILURE);
     }
-    for (int i = 0; i < MAX_TOKENS; ++i) {
-        postfix[i] = (char*)malloc(MAX_TOKEN_LENGTH * sizeof(char));
+    for (int i = 0; i < 100; ++i) {
+        postfix[i] = (char*)malloc(20 * sizeof(char));
         if (postfix[i] == NULL) {
             perror("Ошибка выделения памяти для postfix[i]");
             exit(EXIT_FAILURE);
@@ -64,13 +59,13 @@ char** infixToPostfix(char *infix, int *postfixSize) {
     }
 
     // Выделяет память для стека
-    char** stack = (char**)malloc(MAX_TOKENS * sizeof(char*));
+    char** stack = (char**)malloc(100 * sizeof(char*));
     if (stack == NULL) {
         perror("Ошибка выделения памяти для stack");
         exit(EXIT_FAILURE);
     }
-    for (int i = 0; i < MAX_TOKENS; ++i) {
-        stack[i] = (char*)malloc(MAX_TOKEN_LENGTH * sizeof(char));
+    for (int i = 0; i < 100; ++i) {
+        stack[i] = (char*)malloc(20 * sizeof(char));
         if (stack[i] == NULL) {
             perror("Ошибка выделения памяти для stack[i]");
             exit(EXIT_FAILURE);
@@ -82,57 +77,55 @@ char** infixToPostfix(char *infix, int *postfixSize) {
     char *token = strtok(infix, " "); // Разделяем строку на токены по пробелам
     // strtok - изменяет сроку, поэтому важно передавать копию строки
 
-    bool expectOperand = true; // Ожидаем операнд (число, переменную или открывающую скобку)
-
     while (token != NULL) {
         if (isdigit(token[0]) || (token[0] == '-' && isdigit(token[1]))) {
             // Если токен - число (или отрицательное)
             strcpy(postfix[postfixIndex++], token);
-            expectOperand = false;
-        } else if (isalpha(token[0])) { // Добавлена проверка на переменную
+            // Добавляем в постфиксную запись
+        }  else if (isalpha(token[0])) {
             // Если токен - переменная (начинается с буквы)
             strcpy(postfix[postfixIndex++], token);
-            expectOperand = false;
+            // Добавляем в постфиксную запись
         } else if (strcmp(token, "(") == 0) {
             strcpy(stack[++stackTop], token);
-            expectOperand = true; // После открывающей скобки ожидаем операнд
+            // Добавляем в стек
         } else if (strcmp(token, ")") == 0) {
-             while (stackTop >= 0 && strcmp(stack[stackTop], "(") != 0) {
+            // Из стека извлекаются все операторы до открывающейся скобки и добавляются в постфиксную
+            while (stackTop >= 0 && strcmp(stack[stackTop], "(") != 0) {
                 strcpy(postfix[postfixIndex++], stack[stackTop--]);
             }
             if (stackTop >= 0 && strcmp(stack[stackTop], "(") == 0) {
                 stackTop--; // Удаляем открывающую скобку
             } else {
+                // Добавлена обработка ошибок: Непарная скобка
                 fprintf(stderr, "Ошибка: Непарные скобки\n");
-                 for (int i = 0; i < MAX_TOKENS; ++i) {
+                // Очистка памяти и выход
+                for (int i = 0; i < 100; ++i) {
                     free(stack[i]);
                 }
                 free(stack);
-                for (int i = 0; i < MAX_TOKENS; ++i) {
+                for (int i = 0; i < 100; ++i) {
                     free(postfix[i]);
                 }
                 free(postfix);
                 exit(EXIT_FAILURE);
             }
-             expectOperand = false;
         } else if (isOperator(token)) {
-            if (expectOperand && strcmp(token, "-") == 0) {
-                 strcpy(stack[++stackTop], "u-");
-            } else {
-                 while (stackTop >= 0 && strcmp(stack[stackTop], "(") != 0 && getPriority(stack[stackTop]) >= getPriority(token)) {
-                    strcpy(postfix[postfixIndex++], stack[stackTop--]);
-                }
-                strcpy(stack[++stackTop], token);
+            while (stackTop >= 0 && strcmp(stack[stackTop], "(") != 0 && getPriority(stack[stackTop]) >= getPriority(token)) {
+                // Из стека извлекаются операторы с более высоким или равным приоритетом и добавляются в постфиксную запись
+                strcpy(postfix[postfixIndex++], stack[stackTop--]);
             }
-            expectOperand = true; // После оператора ожидаем операнд
-
+            strcpy(stack[++stackTop], token);
+            // Затем текущий оператор добавляется в стек
         } else {
-             fprintf(stderr, "Ошибка: Неверный символ %s\n", token);
-            for (int i = 0; i < MAX_TOKENS; ++i) {
+            // Добавлена обработка ошибок: неверный символ
+            fprintf(stderr, "Ошибка: Неверный символ %s\n", token);
+            // Очистка памяти и выход
+            for (int i = 0; i < 100; ++i) {
                 free(stack[i]);
             }
             free(stack);
-            for (int i = 0; i < MAX_TOKENS; ++i) {
+            for (int i = 0; i < 100; ++i) {
                 free(postfix[i]);
             }
             free(postfix);
@@ -141,14 +134,17 @@ char** infixToPostfix(char *infix, int *postfixSize) {
         token = strtok(NULL, " "); // Получаем следующий токен
     }
 
-     while (stackTop >= 0) {
+    // Оставшиеся операторы извлекаются из стека и добавляются в постфиксную запись
+    while (stackTop >= 0) {
         if (strcmp(stack[stackTop], "(") == 0) {
+            // Добавлена обработка ошибок: Непарная скобка
             fprintf(stderr, "Ошибка: Непарные скобки\n");
-             for (int i = 0; i < MAX_TOKENS; ++i) {
+            // Очистка памяти и выход
+            for (int i = 0; i < 100; ++i) {
                 free(stack[i]);
             }
             free(stack);
-            for (int i = 0; i < MAX_TOKENS; ++i) {
+            for (int i = 0; i < 100; ++i) {
                 free(postfix[i]);
             }
             free(postfix);
@@ -159,11 +155,12 @@ char** infixToPostfix(char *infix, int *postfixSize) {
 
     *postfixSize = postfixIndex; //Размер постфиксной записи
 
-    for (int i = 0; i < MAX_TOKENS; ++i) {
+    // Освобождаем память, выделенную под стэк
+    for (int i = 0; i < 100; ++i) {
         free(stack[i]);
     }
     free(stack);
-
+    
     return postfix;
 }
 
@@ -218,227 +215,83 @@ void freeTree(TreeNode *root) {
     }
 }
 
-// Вспомогательная функция для обхода дерева и сбора токенов (используется в simplifyFraction)
-static void traverseTree(TreeNode* node, char** tokens, int* count) {
-    if (node == NULL) return;
-
-    if (isOperator(node->data) && strcmp(node->data, "*") == 0) {
-        traverseTree(node->left, tokens, count);
-        traverseTree(node->right, tokens, count);
-    } else {
-        strcpy(tokens[(*count)++], node->data);
-    }
-}
-
-// Вспомогательная функция для построения дерева из токенов после сокращения (используется в simplifyFraction)
-static TreeNode* buildSubTree(char** tokens, int count) {
-    TreeNode* subtree = NULL;
-    if (count > 0) {
-        // Создаем дерево, перемножая токены
-        subtree = createNode(tokens[0]);
-        for (int i = 1; i < count; i++) {
-            TreeNode* mulNode = createNode("*");
-            mulNode->left = subtree;
-            mulNode->right = createNode(tokens[i]);
-            subtree = mulNode;
-        }
-    }
-    return subtree;
-}
-
-// Функция для упрощения дроби, сокращая общие члены
-TreeNode* simplifyFraction(TreeNode* root) {
-    if (root == NULL || strcmp(root->data, "/") != 0) {
-        return root; // Упрощать нужно только корень, являющийся делением
-    }
-
-    TreeNode* numerator = root->left; //числитель
-    TreeNode* denominator = root->right; //знаменатель
-
-    // Выделяем память под массивы для хранения токенов числителя и знаменателя
-    char** numTokens = (char**)malloc(MAX_TOKENS * sizeof(char*));
-    char** denTokens = (char**)malloc(MAX_TOKENS * sizeof(char*));
-
-    for (int i = 0; i < MAX_TOKENS; i++) {
-        numTokens[i] = (char*)malloc(MAX_TOKEN_LENGTH * sizeof(char));
-        denTokens[i] = (char*)malloc(MAX_TOKEN_LENGTH * sizeof(char));
-        if (!numTokens[i] || !denTokens[i]) {
-            fprintf(stderr, "Ошибка: недостаточно памяти\n");
-              for (int j = 0; j < i; j++) {
-                  free(numTokens[j]);
-                  free(denTokens[j]);
-              }
-            free(numTokens);
-            free(denTokens);
-
-            return root;
-        }
-    }
-
-    int numCount = 0;
-    int denCount = 0;
-
-    // Обходим дерево для числителя и знаменателя и сохраняем токены
-    // Для упрощения предполагаем, что числитель и знаменатель содержат только *
-    traverseTree(numerator, numTokens, &numCount);
-    traverseTree(denominator, denTokens, &denCount);
-
-    // Сокращаем общие токены
-    for (int i = 0; i < numCount; i++) {
-        if (strcmp(numTokens[i], "USED") == 0) continue;
-        for (int j = 0; j < denCount; j++) {
-            if (strcmp(denTokens[j], "USED") == 0) continue;
-            if (strcmp(numTokens[i], denTokens[j]) == 0) {
-                strcpy(numTokens[i], "USED");
-                strcpy(denTokens[j], "USED");
-                break;
-            }
-        }
-    }
-
-    // Создаем массивы токенов, пропуская "USED"
-    char** newNumTokens = (char**)malloc(MAX_TOKENS * sizeof(char*));
-    char** newDenTokens = (char**)malloc(MAX_TOKENS * sizeof(char*));
-    for (int i = 0; i < MAX_TOKENS; i++) {
-        newNumTokens[i] = (char*)malloc(MAX_TOKEN_LENGTH * sizeof(char));
-        newDenTokens[i] = (char*)malloc(MAX_TOKEN_LENGTH * sizeof(char));
-        if (!newNumTokens[i] || !newDenTokens[i]) {
-             fprintf(stderr, "Ошибка: недостаточно памяти\n");
-             for (int j = 0; j < i; j++) {
-                  free(newNumTokens[j]);
-                  free(newDenTokens[j]);
-              }
-            free(newNumTokens);
-            free(newDenTokens);
-            return root;
-        }
-    }
-
-    int newNumCount = 0;
-    int newDenCount = 0;
-
-     for (int i = 0; i < numCount; i++) {
-        if (strcmp(numTokens[i], "USED") != 0) {
-            strcpy(newNumTokens[newNumCount++], numTokens[i]);
-        }
-    }
-
-    for (int i = 0; i < denCount; i++) {
-        if (strcmp(denTokens[i], "USED") != 0) {
-            strcpy(newDenTokens[newDenCount++], denTokens[i]);
-        }
-    }
-
-    // Строим новые деревья для числителя и знаменателя
-    TreeNode* newNumerator = buildSubTree(newNumTokens, newNumCount);
-    TreeNode* newDenominator = buildSubTree(newDenTokens, newDenCount);
-
-    // Освобождаем старые деревья
-    freeTree(numerator);
-    freeTree(denominator);
-
-    // Освобождаем память
-     for (int i = 0; i < MAX_TOKENS; i++) {
-            free(numTokens[i]);
-            free(denTokens[i]);
-     }
-
-      for (int i = 0; i < MAX_TOKENS; i++) {
-            free(newNumTokens[i]);
-            free(newDenTokens[i]);
-     }
-
-    free(numTokens);
-    free(denTokens);
-    free(newNumTokens);
-    free(newDenTokens);
-
-    // Обновляем числитель и знаменатель в корневом узле
-    root->left = newNumerator;
-    root->right = newDenominator;
-
-    return root;
-}
-
 // Функция для преобразования a / b + c / d -> (a * d + b * c)/(b * d)
-// TreeNode *transformTree(TreeNode *root) {
-//     if (root == NULL) {
-//         return NULL;
-//     }
+TreeNode *transformTree(TreeNode *root) {
+    if (root == NULL) {
+        return NULL;
+    }
 
-//     if (strcmp(root->data, "+") == 0 && root->left != NULL && strcmp(root->left->data, "/") == 0 && root->right != NULL && strcmp(root->right->data, "/") == 0) {
-//         TreeNode *a = root->left->left;
-//         TreeNode *b = root->left->right;
-//         TreeNode *c = root->right->left;
-//         TreeNode *d = root->right->right;
+    // Рекурсивно обрабатываем левое и правое поддеревья
+    TreeNode *left = transformTree(root->left);
+    TreeNode *right = transformTree(root->right);
 
-//         // Создаем новые узлы для (a * d + b * c)/(b * d)
-//         TreeNode *mul1 = createNode("*");
-//         mul1->left = createNode(a->data);
-//         mul1->right = createNode(d->data);
 
-//         TreeNode *mul2 = createNode("*");
-//         mul2->left = createNode(b->data);
-//         mul2->right = createNode(c->data);
+    // Проверяем текущий узел и его потомков на соответствие шаблону a / b + c / d
+    // Текущий узел - +, его левый потомок - /, правый потомок - /
+    if (strcmp(root->data, "+") == 0 && root->left != NULL && strcmp(root->left->data, "/") == 0 && root->right != NULL && strcmp(root->right->data, "/") == 0) {
 
-//         TreeNode *add = createNode("+");
-//         add->left = mul1;
-//         add->right = mul2;
+        // Создаем копии узлов a, b, c ,d
+        TreeNode *a = createNode(root->left->left->data); // createNode создает копию
+        TreeNode *b = createNode(root->left->right->data);
+        TreeNode *c = createNode(root->right->left->data);
+        TreeNode *d = createNode(root->right->right->data);
 
-//         TreeNode *mul3 = createNode("*");
-//         mul3->left = createNode(b->data);
-//         mul3->right = createNode(d->data);
+        // Создаем новые узлы для (a * d + b * c)/(b * d)
+        TreeNode *mul1 = createNode("*");
+        mul1->left = a;
+        mul1->right = d;
 
-//         TreeNode *div = createNode("/");
-//         div->left = add;
-//         div->right = mul3;
+        TreeNode *mul2 = createNode("*");
+        mul2->left = b;
+        mul2->right = c;
 
-//         // Освобождаем память от старых узлов и их потомков
-//         free(root->left->left);
-//         free(root->left->right);
-//         free(root->left);
-//         free(root->right->left);
-//         free(root->right->right);
-//         free(root->right);
-//         free(root);
+        TreeNode *add = createNode("+");
+        add->left = mul1;
+        add->right = mul2;
 
-//        return div; // Возвращаем корен преобразованного поддерева
-//     } else {
-//          TreeNode* newRoot = createNode(root->data);
-//         newRoot->left = transformTree(root->left);
-//         newRoot->right = transformTree(root->right);
-//         // Освобождаем память от старого root
-//         free(root->left);
-//         free(root->right);
-//         free(root);
+        TreeNode *mul3 = createNode("*");
+        mul3->left = b;
+        mul3->right = d;
 
-//         return newRoot;
-//     }
-// }
+        TreeNode *div = createNode("/");
+        div->left = add;
+        div->right = mul3;
+
+
+        // Освобождаем память от старых узлов и их потомков
+        freeTree(root->left);
+        freeTree(root->right);
+        free(root);
+
+       return div; // Возвращаем корен преобразованного поддерева
+    } else {
+        // Если преобразование не выполнено, возвращаем новый корень с преобразованными потомками
+        TreeNode* newRoot = createNode(root->data);
+        newRoot->left = left;
+        newRoot->right = right;
+
+        return newRoot;
+    }
+}
 
 // Функция для печати дерева в инфиксной записи
 void printInfix(TreeNode *root) {
     if (root != NULL) {
-         if (strcmp(root->data, "u-") == 0) {
-            printf("-"); // Особый случай для унарного минуса
-            printInfix(root->right);
-        } else {
-            if (isOperator(root->data) && root->left && root->right) {
-                printf("(");
-            }
-            printInfix(root->left);
-            printf(" %s ", root->data);
-            printInfix(root->right);
-            if (isOperator(root->data) && root->left && root->right) {
-                printf(")");
-            }
+        if (isOperator(root->data) && root->left && root->right) {
+            printf("(");
+        }
+        printInfix(root->left);
+        printf(" %s ", root->data);
+        printInfix(root->right);
+        if (isOperator(root->data) && root->left && root->right) {
+            printf(")");
         }
     }
 }
 
 // Функция для печати дерева в виде дерева (с отступами)
 void printTreeIndented(TreeNode *root, int level) {
-   if (root == NULL) {
+    if (root == NULL) {
         return;
     }
 
@@ -447,11 +300,7 @@ void printTreeIndented(TreeNode *root, int level) {
         printf("    "); // 4 пробела для каждого уровня
     }
 
-     if (strcmp(root->data, "u-") == 0) {
-            printf("u-\n");
-        } else {
-             printf("%s\n", root->data);
-        }
+    printf("%s\n", root->data);
 
     // Рекурсивно печатаем правое и левое поддеревья
     printTreeIndented(root->left, level + 1);
@@ -464,9 +313,9 @@ void printTreeWrapper(TreeNode *root) {
 }
 
 int main() {
-    char expression[MAX_TOKENS * 2];
+    char expression[200];
 
-    printf("Введите арифметическое выражение (например: a * b * 3 / 3 * b * c): ");
+    printf("Введите арифметическое выражение (например: a / b + c / d): ");
     fgets(expression, sizeof(expression), stdin);
     expression[strcspn(expression, "\n")] = 0; // Удаляем символ новой строки, который добавляет fgets
 
@@ -485,14 +334,14 @@ int main() {
 
     if(root == NULL) {
         // Ошибка при построении дерева, нужно освободить выделенную память и выйти
-        for (int i = 0; i < MAX_TOKENS; ++i) {
+        for (int i = 0; i < 100; ++i) {
             free(postfix[i]);
         }
         free(postfix);
         return 1; // Или другой код ошибки
     }
 
-    for (int i = 0; i < MAX_TOKENS; ++i) {
+    for (int i = 0; i < 100; ++i) {
         free(postfix[i]);
     }
     free(postfix);
@@ -506,20 +355,19 @@ int main() {
     printInfix(root);
     printf("\n");
 
-    if (strcmp(root->data, "/") == 0) { // Упрощаем, только если выражение - дробь
-        root = simplifyFraction(root);
-    }
+    // Выполняем преобразование дерева
+    TreeNode *transformedRoot = transformTree(root);
 
-    printf("Упрощенное выражение (дерево): \n");
-    printTreeWrapper(root);
+    printf("Преобразованное выражение (дерево): \n");
+    printTreeWrapper(transformedRoot);
     printf("\n");
 
-    printf("Упрощенное выражение (текст): ");
-    printInfix(root);
+    printf("Преобразованное выражение (текст): ");
+    printInfix(transformedRoot);
     printf("\n");
 
     // Освобождаем память, выделенную под дерево
-    freeTree(root); // Используем root, т.к. transformTree больше не нужна
+    freeTree(transformedRoot);
 
     return 0;
 }
