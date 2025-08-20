@@ -1,90 +1,81 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "stack.h"
 #include "sort.h"
 
-int main() {
-    stack myStack;
-    stack_create(&myStack);
+int main()
+{
+    int capacity;
+    printf("Введите размер стека: ");
+    scanf("%d", &capacity);
 
-    int choice, size, key;
-    data_type item;
-    stack anotherStack; // Для конкатенации
+    Stack *s = create_stack(capacity);
 
-    do {
-        printf("\nМеню управления стеком:\n");
-        printf("1. Создать случайный стек\n");
-        printf("3. Вывести размер стека\n");
-        printf("4. Вставить в начало стека\n");
-        printf("5. Вставить в конец стека\n");
-        printf("6. Удалить первый элемент стека\n");
-        printf("7. Удалить последний элемент стека\n");
-        printf("8. Сортировка стека\n");
-        printf("10. Конкатенация двух стеков\n");
-        printf("0. Выйти\n");
-        printf("Выберите опцию: ");
+    int choice, value;
+    while (1)
+    {
+        printf("\nМеню:\n");
+        printf("1. Добавить элемент (push)\n");
+        printf("2. Извлечь элемент (pop)\n");
+        printf("3. Показать стек\n");
+        printf("4. Сортировать стек (по возрастанию)\n");
+        printf("5. Сортировать стек (по убыванию)\n");
+        printf("0. Выход\n");
+        printf("Ваш выбор: ");
         scanf("%d", &choice);
 
-        switch (choice) {
-            case 1:
-                printf("Введите размер стека: ");
-                scanf("%d", &size);
-                stack_create_random(&myStack, size);
-                printf("Стек создан.\n");
-                break;
-            case 3:
-                printf("Размер стека: %zu\n", stack_size(&myStack));
-                break;
-            case 4:
-                printf("Введите ключ элемента: ");
-                scanf("%d", &key);
-                item.key = key;
-                printf("Введите значение элемента: ");
-                scanf("%s", item.value);
-                stack_push_front(&myStack, item);
-                printf("Элемент добавлен в начало стека.\n");
-                break;
-            case 5:
-                printf("Введите ключ элемента: ");
-                scanf("%d", &key);
-                item.key = key;
-                printf("Введите значение элемента: ");
-                scanf("%s", item.value);
-                stack_push_back(&myStack, item);
-                printf("Элемент добавлен в конец стека.\n");
-                break;
-            case 6:
-                item = stack_pop_front(&myStack);
-                if (item.key != -1) {
-                    printf("Удален первый элемент: Ключ: %d, Значение: %s\n", item.key, item.value);
-                }
-                break;
-            case 7:
-                item = stack_pop_back(&myStack);
-                if (item.key != -1) {
-                    printf("Удален последний элемент: Ключ: %d, Значение: %s\n", item.key, item.value);
-                }
-                break;
-            case 8:
-                stack_sort_selection(&myStack);
-                printf("Стек отсортирован.\n");
-                break;
-            case 10:
-                stack_create(&anotherStack);
-                printf("Создайте второй стек (введите размер): ");
-                scanf("%d", &size);
-                stack_create_random(&anotherStack, size);
-                stack_concatenate(&myStack, &anotherStack);
-                printf("Стеки объединены.\n");
-                break;
-            case 0:
-                printf("Выход из программы.\n");
-                break;
-            default:
-                printf("Неверный ввод.\n");
+        switch (choice)
+        {
+        case 1:
+            printf("Введите число: ");
+            scanf("%d", &value);
+            push(s, value);
+            print_stack(s);
+            break;
+        case 2:
+            if (!is_empty(s))
+            {
+                printf("\nИзвлечено: %d\n", pop(s));
+                print_stack(s);
+            }
+            else
+            {
+                printf("Стек пуст!\n");
+            }
+            break;
+        case 3:
+            print_stack(s);
+            break;
+        case 4:
+            if (!is_empty(s))
+            {
+                selection_sort_stack(s, 1);
+                printf("Стек отсортирован по возрастанию.\n");
+                print_stack(s);
+            }
+            else
+            {
+                printf("Стек пуст!\n");
+            }
+            break;
+        case 5:
+            if (!is_empty(s))
+            {
+                selection_sort_stack(s, -1);
+                printf("Стек отсортирован по убыванию.\n");
+                print_stack(s);
+            }
+            else
+            {
+                printf("Стек пуст!\n");
+            }
+            break;
+        case 0:
+            free_stack(s);
+            printf("Выход...\n");
+            return 0;
+        default:
+            printf("Неверный выбор!\n");
         }
-    } while (choice != 0);
-
-    return 0;
+    }
 }

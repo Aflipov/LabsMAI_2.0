@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -MMD -MP
 
 # Имя таргета
-TARGET = stack_sort
+TARGET = expression_simplifier
 
 # Исходники, объектные файлы и зависимости
 SRC = $(wildcard *.c)

@@ -3,6 +3,8 @@
 
 #include "stack.h"
 
-void stack_sort_selection(stack *s);
+// order = 1  -> сортировка по возрастанию
+// order = -1 -> сортировка по убыванию
+void selection_sort_stack(Stack *s, int order);
 
 #endif

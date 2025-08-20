@@ -1,22 +1,51 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "stack.h"
+#include <limits.h>
 #include "sort.h"
 
-// Сортировка стека линейным выбором
-void stack_sort_selection(stack *s) {
-    stack tempStack;
-    stack_create(&tempStack);
+void selection_sort_stack(Stack *s, int order)
+{
+    Stack *tmp = create_stack(s->capacity);
+    Stack *sorted = create_stack(s->capacity);
 
-    while (!stack_is_empty(s)) {
-        data_type max_val = stack_delete_max(s);
-        stack_push_front(&tempStack, max_val);
+    while (!is_empty(s))
+    {
+        int extremum = (order == 1 ? INT_MAX : INT_MIN);
+
+        // найти минимум (для возрастания) или максимум (для убывания)
+        while (!is_empty(s))
+        {
+            int x = pop(s);
+            if ((order == 1 && x < extremum) || (order == -1 && x > extremum))
+            {
+                extremum = x;
+            }
+            push(tmp, x);
+        }
+
+        // переложить обратно, пропуская найденный элемент
+        int skipped = 0;
+        while (!is_empty(tmp))
+        {
+            int x = pop(tmp);
+            if (x == extremum && !skipped)
+            {
+                skipped = 1;
+            }
+            else
+            {
+                push(s, x);
+            }
+        }
+
+        // найденный минимум/максимум кладём в "отсортированный" стек
+        push(sorted, extremum);
     }
 
-    // Перемещаем элементы обратно в исходный стек
-    while (!stack_is_empty(&tempStack)) {
-        data_type val = stack_pop_front(&tempStack);
-        stack_push_front(s, val);
+    // переносим всё обратно из sorted → s
+    while (!is_empty(sorted))
+    {
+        push(s, pop(sorted));
     }
+
+    free_stack(tmp);
+    free_stack(sorted);
 }

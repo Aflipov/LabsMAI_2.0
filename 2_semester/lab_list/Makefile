@@ -1,26 +1,43 @@
+# Компилятор и флаги
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -MMD -MP
+
+# Имя таргета
 TARGET = list_manager
 
+# Исходники, объектные файлы и зависимости
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
 DEP = $(OBJ:.o=.d)
 
+# Определение OS
 ifeq ($(OS),Windows_NT)
+    EXE = .exe
+    START = CMD /C START 
     RM = del /Q
+    CLEAN = 2>nul
 else
+    EXE =
+    START = ./
     RM = rm -f
+    CLEAN = 
 endif
 
-all: $(TARGET)
+# Цель по умолчанию
+.SILENT:
+all: $(TARGET)$(EXE)
 
-$(TARGET): $(OBJ)
+# Сборка таргета
+$(TARGET)$(EXE): $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
-run: $(TARGET)
-	./$(TARGET)
+# Запуск
+run: $(TARGET)$(EXE)
+	$(START)$(TARGET)$(EXE)
 
+# Очистка
 clean:
-	$(RM) $(OBJ) $(TARGET) $(DEP)
+	$(RM) $(TARGET)$(EXE) $(OBJ) $(DEP) $(CLEAN)
 
+# Подключение зависимостей
 -include $(DEP)
